@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Color curtains — motion study</title>
+<style>
+:root{color-scheme:dark;font:16px/1.5 system-ui,sans-serif;background:#161b20;color:#f3f4f5}*{box-sizing:border-box}body{margin:0}main{max-width:1440px;margin:auto;padding:32px}h1{font-size:24px;font-weight:500;margin:0}header p{color:#b9c4ce;margin:8px 0 24px}#stage{aspect-ratio:1.7;background:#243d53;overflow:hidden;border-radius:8px}canvas{display:block;width:100%!important;height:100%!important}#stage:fullscreen{border-radius:0;aspect-ratio:auto}fieldset{border:0;padding:0;margin:24px 0;display:flex;flex-wrap:wrap;gap:20px;align-items:center}label{display:grid;gap:6px}input,button{font:inherit;accent-color:#6dd9e7}button{background:#25343f;border:1px solid #728693;color:inherit;padding:10px 16px;border-radius:6px;cursor:pointer}input[type=file]{max-width:100%;width:270px}input[type=range]{width:150px}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #ffe8a3;outline-offset:4px}audio{width:min(100%,500px)}small,#status{color:#b9c4ce}footer{margin:20px 0}a{color:#91e1ec}@media(max-width:600px){main{padding:18px}#stage{aspect-ratio:1.15}fieldset{gap:16px}h1{font-size:22px}}
+</style>
+<script defer src="vendor/p5.min.js"></script><script defer src="sketch.js?v=range-controls"></script>
+</head>
+<body><main>
+<header><h1>Color curtains</h1><p>A study from your video: translucent rectangles building up over time, based on your moving_squares sketch.</p></header>
+<div id="stage" role="img" aria-label="Translucent vertical rectangles accumulating into bands of color"></div>
+<fieldset aria-label="Visual controls">
+<button id="motion" type="button">Pause motion</button><button id="reset" type="button">Clear canvas</button><button id="fullscreen" type="button">Fullscreen</button>
+<label>Layering speed <output id="speed-value" for="speed">1× · 50 rectangles/sec</output><input id="speed" type="range" min="0" max="10" step="0.05" value="1"></label>
+<label>Minimum width <output id="width-min-value" for="width-min">0.2%</output><input id="width-min" type="range" min="0.1" max="100" step="0.1" value="0.2"></label>
+<label>Maximum width <output id="width-max-value" for="width-max">6%</output><input id="width-max" type="range" min="0.1" max="100" step="0.1" value="6"></label>
+<label>Minimum opacity <output id="alpha-min-value" for="alpha-min">0%</output><input id="alpha-min" type="range" min="0" max="100" step="1" value="0"></label>
+<label>Maximum opacity <output id="alpha-max-value" for="alpha-max">12%</output><input id="alpha-max" type="range" min="0" max="100" step="1" value="12"></label>
+<label>Audio response<input id="response" type="range" min="0" max="3" step="0.01" value="1"></label>
+</fieldset>
+<p><small>Each new rectangle gets a random width and opacity within these ranges. Width is a percentage of the canvas; rectangles can extend past its right edge. Speed controls how often new layers arrive. Audio may increase rate and opacity further.</small></p>
+<button id="defaults" type="button">Restore gentle settings</button>
+<label>Choose an audio file<input id="file" type="file" accept="audio/*"></label>
+<p id="status" role="status">Silent motion. Choose a track, then press Play. Your audio stays in this browser.</p>
+<audio id="audio" controls loop></audio>
+<details style="margin-top:28px"><summary>Explore your original moving_squares sketch</summary>
+<p>The canvas is painted white once in <code>setup()</code>. Each call to <code>draw()</code> adds five shapes without clearing earlier ones. At 10 frames per second, that is about 50 new squares per second.</p>
+<p><code>w = (x + y) / 5.0</code> makes squares larger farther toward the bottom-right. Red depends on x, green on y, and blue stays between 20 and 30. <code>random(30)</code> gives each square less than 12% opacity.</p>
+<p>Nothing actually moves or fades away: later translucent squares cover earlier colors. Each overlap blends the new color with the existing image. Our adaptation keeps that accumulation, but uses tall rectangles, independently adjustable widths, and the video's cooler palette.</p>
+<pre style="overflow:auto;padding:20px;background:#202a32;border-radius:8px"><code>void setup() {
+size(displayHeight, displayWidth);
+background(255);
+frameRate(10);
+}
+void draw() {
+int numrects = 5;
+float maxalpha = 30;
+
+for (int i=0; i&lt;numrects; i++) {
+ float x = random(width);
+ float y = random(height);
+ float w = (x + y) / 5.0;
+ float h = w;
+ 
+ float r = x / 3.0;
+ float g = y /4.0;
+ float b = random(20, 30);
+ float a = random(maxalpha);
+ 
+ fill(r, g, b, a);
+ noStroke();
+ //strokeWeight(5);
+ rect(x, y, w, h);
+}
+}
+</code></pre></details>
+<footer><small>Starts on white; colors deepen as new layers accumulate. Clear canvas restarts the buildup. Fullscreen exits with Esc.</small></footer>
+</main></body></html>
